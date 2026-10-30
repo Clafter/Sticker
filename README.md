@@ -1,5 +1,20 @@
 # Stickr
 
+[![Get it on Obtainium](https://img.shields.io/badge/Obtainium-Install-blue?logo=android)](https://github.com/Clafter/Sticker/releases/latest)
+
+## Install
+
+The easiest way to install Stickr and receive automatic updates is via **[Obtainium](https://github.com/ImranR98/Obtainium)**:
+
+1. Open Obtainium and tap **Add App**.
+2. Enter `https://github.com/Clafter/Sticker` as the source URL.
+3. Set the **APK name filter** to `stickr-.*\.apk`.
+4. Tap **Add** — Obtainium will detect new releases automatically.
+
+Alternatively, download the latest APK directly from the [Releases page](https://github.com/Clafter/Sticker/releases/latest).
+
+---
+
 **Stickr** is an Android-first Flutter application for creating, organizing, sharing, and exporting WhatsApp sticker packs. It enables users to produce high-quality static and animated 512x512 WebP stickers from various media sources including photos, local videos, TikTok clips, meme templates, Giphy results, and TikTok comment images.
 
 ---
@@ -14,7 +29,7 @@
 * **Video Editing Tools:** Trim video clips, adjust playback speed, and overlay custom text or custom icons.
 
 ### Content Discovery
-* **Giphy Search:** Search and discover Giphy stickers with seamless offset pagination.
+* **Giphy & Klipy Search:** Search and discover stickers from Giphy or Klipy with seamless pagination.
 * **Community Trending:** Browse live trending stickers and collect up to 30 items in a staging tray.
 * **TikTok Comment Scraping:** Scan TikTok comments via Apify and batch-export images directly into stickers.
 * **Meme Integration:** Access Imgflip meme templates for instant sticker creation.
@@ -44,7 +59,7 @@ The editor output is initially stored in a temporary cache (`stickr_temp`). Upon
 
 ### Network Services
 Stickr relies on multiple robust services for content discovery and processing:
-* **Giphy:** Powers trending and paginated search.
+* **Giphy & Klipy:** Power trending and paginated sticker search (provider switchable in the Discover tab).
 * **Apify:** Uses `api-ninja~tiktok-comments-scraper` to process up to 50 comments per run.
 * **TikWM:** Resolves downloadable TikTok video media.
 * **Imgflip:** Provides meme templates.
@@ -97,21 +112,23 @@ java -version
 ### Initial Setup
 Clone the repository and install dependencies:
 ```sh
-git clone https://github.com/Dr-Rank1/Sticker.git
+git clone https://github.com/Clafter/Sticker.git
 cd Sticker
 flutter pub get
 flutter gen-l10n
 ```
 
 ### API Configuration
-Required API keys must be provided as compile-time Dart defines (never commit live keys):
-* `GIPHY_API_KEY`
-* `APIFY_API_TOKEN`
+API keys are optional at startup. You can enter them at runtime via **Settings → API Keys** inside the app, or bake them in at build time with Dart defines:
+* `GIPHY_API_KEY` — Giphy search (has a free tier)
+* `KLIPY_API_KEY` — Klipy search (alternative GIF provider)
+* `APIFY_API_TOKEN` — TikTok comment scraping (optional)
 
-Run the app:
+Run the app with baked-in keys:
 ```sh
 flutter run \
   --dart-define=GIPHY_API_KEY=your_giphy_key \
+  --dart-define=KLIPY_API_KEY=your_klipy_key \
   --dart-define=APIFY_API_TOKEN=your_apify_token
 ```
 
@@ -159,7 +176,7 @@ Edit `android/key.properties` with your keystore path and credentials.
 ```sh
 cp android/release-defines.example.json android/release-defines.json
 ```
-Populate the JSON with your live API keys.
+Populate the JSON with your live API keys (`GIPHY_API_KEY`, `KLIPY_API_KEY`, `APIFY_API_TOKEN`).
 
 ### 3. Build Release AppBundle
 ```sh
@@ -174,7 +191,34 @@ Generate lock file and deploy to Google Play Beta track:
 ```sh
 cd android/fastlane
 bundle install
+bundle lock
 bundle exec fastlane android beta
+```
+
+### Automated GitHub Releases (Obtainium)
+
+Pushing a `v*.*.*` tag triggers the **Release** GitHub Actions workflow, which:
+
+1. Runs `flutter analyze` and `flutter test`.
+2. Injects `GIPHY_API_KEY` and `KLIPY_API_KEY` from repository secrets.
+3. Decodes the signing keystore from `ANDROID_KEYSTORE_BASE64`.
+4. Builds a signed release APK.
+5. Creates a GitHub Release with the APK attached (`stickr-vX.Y.Z.apk`).
+
+Required repository secrets:
+
+| Secret | Description |
+|---|---|
+| `GIPHY_API_KEY` | Giphy API key |
+| `KLIPY_API_KEY` | Klipy API key |
+| `ANDROID_KEYSTORE_BASE64` | Base64-encoded `.jks` keystore |
+| `ANDROID_KEY_ALIAS` | Key alias inside the keystore |
+| `ANDROID_KEY_PASSWORD` | Password for the key |
+| `ANDROID_STORE_PASSWORD` | Password for the keystore |
+
+To cut a release:
+```sh
+git tag v1.0.0 && git push origin v1.0.0
 ```
 
 ---
