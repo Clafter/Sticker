@@ -209,8 +209,8 @@ Required repository secrets:
 
 | Secret | Description |
 |---|---|
-| `GIPHY_API_KEY` | Giphy API key |
-| `KLIPY_API_KEY` | Klipy API key |
+| `GIPHY_API` | Giphy API key |
+| `KLIPY_API` | Klipy API key |
 | `ANDROID_KEYSTORE_BASE64` | Base64-encoded `.jks` keystore |
 | `ANDROID_KEY_ALIAS` | Key alias inside the keystore |
 | `ANDROID_KEY_PASSWORD` | Password for the key |

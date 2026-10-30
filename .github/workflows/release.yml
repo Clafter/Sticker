@@ -49,8 +49,8 @@ jobs:
 
       - name: Write release-defines.json
         env:
-          GIPHY_API_KEY: ${{ secrets.GIPHY_API_KEY }}
-          KLIPY_API_KEY: ${{ secrets.KLIPY_API_KEY }}
+          GIPHY_API_KEY: ${{ secrets.GIPHY_API }}
+          KLIPY_API_KEY: ${{ secrets.KLIPY_API }}
         run: |
           printf '{\n  "GIPHY_API_KEY": "%s",\n  "KLIPY_API_KEY": "%s",\n  "APIFY_API_TOKEN": ""\n}\n' \
             "$GIPHY_API_KEY" "$KLIPY_API_KEY" > android/release-defines.json
