@@ -132,6 +132,8 @@ jobs:
             ```
             Set the **APK file name filter** to `stickr-.*\.apk`.
 
+            > **Note:** The APK is a universal build (~290 MB) that runs on all Android CPU architectures. On a metered connection, allow a minute to download.
+
             ## What's new
 
             See [commits](https://github.com/Clafter/Sticker/commits/${{ steps.tag.outputs.tag }}) for changes since the last release.

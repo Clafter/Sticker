@@ -6,10 +6,19 @@
 
 The easiest way to install Stickr and receive automatic updates is via **[Obtainium](https://github.com/ImranR98/Obtainium)**:
 
-1. Open Obtainium and tap **Add App**.
-2. Enter `https://github.com/Clafter/Sticker` as the source URL.
-3. Set the **APK name filter** to `stickr-.*\.apk`.
-4. Tap **Add** — Obtainium will detect new releases automatically.
+1. Install Obtainium from [obtainium.imranr.dev](https://obtainium.imranr.dev) or [F-Droid](https://f-droid.org/packages/dev.imranr.obtainium.fdroid/).
+2. Open Obtainium and tap **Add App**.
+3. Enter the source URL:
+   ```
+   https://github.com/Clafter/Sticker
+   ```
+4. Scroll to **APK File Name Filter** and set it to:
+   ```
+   stickr-.*\.apk
+   ```
+5. Tap **Add** — Obtainium fetches the latest release and keeps the app up to date automatically.
+
+> **Note:** The APK is ~294 MB (a universal build including all CPU architectures). On a metered connection it may take a minute to download.
 
 Alternatively, download the latest APK directly from the [Releases page](https://github.com/Clafter/Sticker/releases/latest).
 
