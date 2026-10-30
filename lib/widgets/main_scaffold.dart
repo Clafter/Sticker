@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../accessibility/accessible_tap.dart';
+import '../discover/discover_screen.dart';
 import '../l10n/l10n.dart';
 import '../screens/community_screen.dart';
 import '../screens/library_screen.dart';
@@ -44,6 +45,7 @@ class MainScaffold extends ConsumerWidget {
             ScannerScreen(),
             LibraryScreen(),
             CommunityScreen(),
+            DiscoverScreen(),
           ],
         ),
         bottomNavigationBar: StickrBottomBar(
@@ -116,6 +118,15 @@ class StickrBottomBar extends StatelessWidget {
                 label: l10n.trending,
                 selected: current == AppTab.community,
                 onTap: () => onSelect(AppTab.community),
+              ),
+            ),
+            Expanded(
+              child: _NavItem(
+                key: const Key('nav-discover'),
+                icon: Icons.search_rounded,
+                label: l10n.discover,
+                selected: current == AppTab.discover,
+                onTap: () => onSelect(AppTab.discover),
               ),
             ),
           ],

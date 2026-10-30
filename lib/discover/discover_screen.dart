@@ -12,6 +12,7 @@ import '../images/sticker_grid_cache.dart';
 import '../images/sticker_grid_image.dart';
 import '../l10n/l10n.dart';
 import '../packs/save_to_pack_sheet.dart';
+import '../settings/settings_screen.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
@@ -611,6 +612,18 @@ class _DiscoverEmptyState extends StatelessWidget {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            if (missingApiKey && error == null) ...[
+              const SizedBox(height: 16),
+              FilledButton.tonal(
+                key: const Key('discover-go-to-settings'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const SettingsScreen(),
+                  ),
+                ),
+                child: Text(context.l10n.missingApiKeyGoToSettings),
+              ),
+            ],
           ],
         ),
       ),

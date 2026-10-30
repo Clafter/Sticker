@@ -113,6 +113,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
     });
   }
 
+  void _clearTray() {
+    if (_exporting) return;
+    setState(_tray.clear);
+  }
+
   Future<void> _exportTray() async {
     if (_exporting ||
         _tray.length < WhatsAppPackRules.minStickers ||
@@ -224,12 +229,24 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             ),
           ),
           Expanded(child: _buildFeed()),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Center(
+              child: Text(
+                'Powered by GIPHY',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: context.colors.textTertiary,
+                ),
+              ),
+            ),
+          ),
           _StagingTray(
             stickers: _tray,
             exporting: _exporting,
             exportCompleted: _exportCompleted,
             exportTotal: _exportTotal,
             onRemove: _removeFromTray,
+            onClear: _clearTray,
             onExport: _exportTray,
           ),
         ],
@@ -411,6 +428,7 @@ class _StagingTray extends StatelessWidget {
     required this.exportCompleted,
     required this.exportTotal,
     required this.onRemove,
+    required this.onClear,
     required this.onExport,
   });
 
@@ -419,6 +437,7 @@ class _StagingTray extends StatelessWidget {
   final int exportCompleted;
   final int exportTotal;
   final ValueChanged<CommunitySticker> onRemove;
+  final VoidCallback onClear;
   final VoidCallback onExport;
 
   @override
@@ -455,6 +474,13 @@ class _StagingTray extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
+              if (stickers.isNotEmpty)
+                IconButton(
+                  key: const Key('community-clear-tray'),
+                  tooltip: 'Clear tray',
+                  onPressed: exporting ? null : onClear,
+                  icon: const Icon(Icons.delete_sweep_rounded, size: 20),
+                ),
               FilledButton.icon(
                 key: const Key('community-export-pack'),
                 onPressed: canExport ? onExport : null,
