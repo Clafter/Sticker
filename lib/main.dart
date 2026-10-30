@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:workmanager/workmanager.dart';
 
-import 'config/app_environment.dart';
 import 'crashlytics/crash_reporter.dart';
 import 'display/display_refresh.dart';
 import 'error/app_error_fallback.dart';

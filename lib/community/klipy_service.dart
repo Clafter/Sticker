@@ -275,5 +275,5 @@ int _dimAt(dynamic dims, int index) {
 final klipyServiceProvider = Provider<KlipyService>((ref) {
   final apiKeys = ref.watch(apiKeySettingsProvider);
   final key = apiKeys.klipyApiKey ?? '';
-  return KlipyService(key: key);
+  return KlipyService(apiKey: key);
 });
