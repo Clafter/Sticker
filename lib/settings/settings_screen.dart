@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/l10n.dart';
+import '../state/settings_store.dart';
 import '../state/theme_controller.dart';
 import '../storage/storage_utility.dart';
 import '../theme/app_colors.dart';
@@ -24,6 +25,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final usage = ref.watch(storageUsageProvider);
     final themeMode = ref.watch(themeModeProvider);
     final l10n = context.l10n;
+    final apiKeys = ref.watch(apiKeySettingsProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settings)),
@@ -158,6 +160,105 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 28),
+            Text(
+              l10n.apiKeys,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.apiKeysDescription,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            Material(
+              color: colors.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                side: BorderSide(color: colors.border),
+              ),
+              child: Column(
+                children: [
+                  _ApiKeyTile(
+                    key: const Key('api-key-giphy'),
+                    icon: Icons.auto_awesome_rounded,
+                    label: l10n.giphyApiKeyLabel,
+                    currentKey: apiKeys.giphyApiKey,
+                    isFirst: true,
+                    onSave: (key) async {
+                      await ref
+                          .read(apiKeySettingsProvider.notifier)
+                          .setGiphyApiKey(key);
+                      if (mounted) {
+                        _showMessage(l10n.apiKeySaved(l10n.giphyApiKeyLabel));
+                      }
+                    },
+                    onClear: () async {
+                      await ref
+                          .read(apiKeySettingsProvider.notifier)
+                          .setGiphyApiKey(null);
+                      if (mounted) {
+                        _showMessage(l10n.apiKeyCleared(l10n.giphyApiKeyLabel));
+                      }
+                    },
+                  ),
+                  Divider(height: 1, indent: 56, color: colors.border),
+                  _ApiKeyTile(
+                    key: const Key('api-key-klipy'),
+                    icon: Icons.movie_filter_rounded,
+                    label: l10n.klipyApiKeyLabel,
+                    currentKey: apiKeys.klipyApiKey,
+                    onSave: (key) async {
+                      await ref
+                          .read(apiKeySettingsProvider.notifier)
+                          .setKlipyApiKey(key);
+                      if (mounted) {
+                        _showMessage(l10n.apiKeySaved(l10n.klipyApiKeyLabel));
+                      }
+                    },
+                    onClear: () async {
+                      await ref
+                          .read(apiKeySettingsProvider.notifier)
+                          .setKlipyApiKey(null);
+                      if (mounted) {
+                        _showMessage(
+                          l10n.apiKeyCleared(l10n.klipyApiKeyLabel),
+                        );
+                      }
+                    },
+                  ),
+                  Divider(height: 1, indent: 56, color: colors.border),
+                  _ApiKeyTile(
+                    key: const Key('api-key-apify'),
+                    icon: Icons.comment_rounded,
+                    label: l10n.apifyApiTokenLabel,
+                    currentKey: apiKeys.apifyApiToken,
+                    isApify: true,
+                    isLast: true,
+                    onSave: (key) async {
+                      await ref
+                          .read(apiKeySettingsProvider.notifier)
+                          .setApifyApiToken(key);
+                      if (mounted) {
+                        _showMessage(
+                          l10n.apiKeySaved(l10n.apifyApiTokenLabel),
+                        );
+                      }
+                    },
+                    onClear: () async {
+                      await ref
+                          .read(apiKeySettingsProvider.notifier)
+                          .setApifyApiToken(null);
+                      if (mounted) {
+                        _showMessage(
+                          l10n.apiKeyCleared(l10n.apifyApiTokenLabel),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
             Text(l10n.legal, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 12),
             Material(
@@ -224,6 +325,219 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     } finally {
       if (mounted) setState(() => _clearing = false);
     }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+      );
+  }
+}
+
+class _ApiKeyTile extends ConsumerStatefulWidget {
+  const _ApiKeyTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.currentKey,
+    required this.onSave,
+    required this.onClear,
+    this.isApify = false,
+    this.isFirst = false,
+    this.isLast = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? currentKey;
+  final Future<void> Function(String key) onSave;
+  final Future<void> Function() onClear;
+  final bool isApify;
+  final bool isFirst;
+  final bool isLast;
+
+  @override
+  ConsumerState<_ApiKeyTile> createState() => _ApiKeyTileState();
+}
+
+class _ApiKeyTileState extends ConsumerState<_ApiKeyTile> {
+  String _maskedStatus(String key) {
+    final trimmed = key.trim();
+    if (trimmed.isEmpty) return context.l10n.apiKeyNotConfigured;
+    final last4 = trimmed.length >= 4
+        ? trimmed.substring(trimmed.length - 4)
+        : trimmed;
+    return context.l10n.apiKeyConfigured(last4);
+  }
+
+  Future<void> _showEditSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => _ApiKeySheet(
+        label: widget.label,
+        isApify: widget.isApify,
+        hasExistingKey: widget.currentKey != null,
+        onSave: widget.onSave,
+        onClear: widget.onClear,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final isConfigured = widget.currentKey != null;
+
+    return ListTile(
+      onTap: _showEditSheet,
+      leading: Icon(
+        widget.icon,
+        color: isConfigured ? colors.accent : colors.textSecondary,
+      ),
+      title: Text(widget.label),
+      subtitle: Text(
+        isConfigured
+            ? _maskedStatus(widget.currentKey!)
+            : context.l10n.apiKeyNotConfigured,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: isConfigured ? colors.accent : colors.textTertiary,
+        ),
+      ),
+      trailing: const Icon(Icons.chevron_right_rounded),
+    );
+  }
+}
+
+class _ApiKeySheet extends StatefulWidget {
+  const _ApiKeySheet({
+    required this.label,
+    required this.isApify,
+    required this.hasExistingKey,
+    required this.onSave,
+    required this.onClear,
+  });
+
+  final String label;
+  final bool isApify;
+  final bool hasExistingKey;
+  final Future<void> Function(String key) onSave;
+  final Future<void> Function() onClear;
+
+  @override
+  State<_ApiKeySheet> createState() => _ApiKeySheetState();
+}
+
+class _ApiKeySheetState extends State<_ApiKeySheet> {
+  final _controller = TextEditingController();
+  bool _saving = false;
+  bool _obscure = true;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final value = _controller.text.trim();
+    if (value.isEmpty) return;
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(value);
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _clear() async {
+    setState(() => _saving = true);
+    try {
+      await widget.onClear();
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.setApiKeyTitle(widget.label),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _controller,
+            obscureText: _obscure,
+            enableSuggestions: false,
+            autocorrect: false,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: widget.isApify
+                  ? l10n.apiKeyApifyHint
+                  : l10n.apiKeyHint,
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscure
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+                tooltip: _obscure ? 'Show' : 'Hide',
+              ),
+            ),
+            onSubmitted: (_) => _save(),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              if (widget.hasExistingKey) ...[
+                OutlinedButton(
+                  onPressed: _saving ? null : _clear,
+                  child: Text(l10n.apiKeyClear),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: FilledButton(
+                  onPressed: _saving ? null : _save,
+                  child: _saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : Text(l10n.apiKeySave),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -59,6 +59,10 @@ libisar.so
 .env
 .env.*
 !.env.example
+.delete-me.env
+
+# Local API key properties (use android/api-keys.properties.example as template)
+android/api-keys.properties
 
 # Firebase credentials (commit *.example only; generate locally with FlutterFire)
 android/app/google-services.json

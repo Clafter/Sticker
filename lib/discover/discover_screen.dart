@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
+import '../community/gif_search_provider.dart';
 import '../community/giphy_service.dart';
+import '../community/klipy_service.dart';
 import '../images/sticker_grid_cache.dart';
 import '../images/sticker_grid_image.dart';
 import '../l10n/l10n.dart';
@@ -23,12 +25,16 @@ class DiscoverScreen extends ConsumerStatefulWidget {
 class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
-  List<GiphySticker> _results = const [];
+
+  // Unified result list — holds either GiphySticker or KlipySticker
+  List<_UnifiedSticker> _results = const [];
   final _downloadingIds = <String>{};
   bool _searching = false;
   bool _loadingPage = false;
   String? _activeQuery;
-  int? _nextOffset;
+  // Giphy uses int offset; Klipy uses string cursor
+  int? _giphyNextOffset;
+  String? _klipyNextCursor;
   int _searchGeneration = 0;
   String? _error;
   CancelToken? _pageCancelToken;
@@ -62,25 +68,46 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       _searching = true;
       _loadingPage = false;
       _activeQuery = query;
-      _nextOffset = null;
+      _giphyNextOffset = null;
+      _klipyNextCursor = null;
       _results = const [];
       _error = null;
     });
 
+    final provider = ref.read(gifProviderProvider);
     try {
-      final page = await ref
-          .read(giphyServiceProvider)
-          .search(query, cancelToken: cancelToken);
+      final List<_UnifiedSticker> stickers;
+      if (provider == GifProvider.giphy) {
+        final page = await ref
+            .read(giphyServiceProvider)
+            .search(query, cancelToken: cancelToken);
+        if (!mounted || generation != _searchGeneration) return;
+        _giphyNextOffset = page.nextOffset;
+        stickers = page.stickers.map(_UnifiedSticker.fromGiphy).toList();
+      } else {
+        final page = await ref
+            .read(klipyServiceProvider)
+            .search(query, cancelToken: cancelToken);
+        if (!mounted || generation != _searchGeneration) return;
+        _klipyNextCursor = page.nextCursor;
+        stickers = page.stickers.map(_UnifiedSticker.fromKlipy).toList();
+      }
       if (!mounted || generation != _searchGeneration) return;
       setState(() {
-        _results = page.stickers;
-        _nextOffset = page.nextOffset;
+        _results = stickers;
         _searching = false;
-        if (page.stickers.isEmpty) {
+        if (stickers.isEmpty) {
           _error = context.l10n.noStickersFound;
         }
       });
     } on GiphyException catch (error) {
+      if (!mounted || generation != _searchGeneration) return;
+      setState(() {
+        _searching = false;
+        _error = error.message;
+      });
+      _showMessage(error.message);
+    } on KlipyException catch (error) {
       if (!mounted || generation != _searchGeneration) return;
       setState(() {
         _searching = false;
@@ -110,34 +137,65 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
   Future<void> _loadNextPage() async {
     final query = _activeQuery;
-    final offset = _nextOffset;
-    if (query == null || offset == null || _searching || _loadingPage) {
-      return;
-    }
+    if (query == null || _searching || _loadingPage) return;
+
+    final provider = ref.read(gifProviderProvider);
+    final hasMore = provider == GifProvider.giphy
+        ? _giphyNextOffset != null
+        : _klipyNextCursor != null;
+    if (!hasMore) return;
+
     final generation = _searchGeneration;
     final cancelToken = CancelToken();
     _pageCancelToken = cancelToken;
     setState(() => _loadingPage = true);
     try {
-      final page = await ref
-          .read(giphyServiceProvider)
-          .search(query, offset: offset, cancelToken: cancelToken);
-      if (!mounted ||
-          generation != _searchGeneration ||
-          query != _activeQuery) {
-        return;
+      final List<_UnifiedSticker> newStickers;
+      if (provider == GifProvider.giphy) {
+        final page = await ref
+            .read(giphyServiceProvider)
+            .search(
+              query,
+              offset: _giphyNextOffset!,
+              cancelToken: cancelToken,
+            );
+        if (!mounted ||
+            generation != _searchGeneration ||
+            query != _activeQuery) {
+          return;
+        }
+        _giphyNextOffset = page.nextOffset;
+        newStickers = page.stickers.map(_UnifiedSticker.fromGiphy).toList();
+      } else {
+        final page = await ref
+            .read(klipyServiceProvider)
+            .search(
+              query,
+              cursor: _klipyNextCursor,
+              cancelToken: cancelToken,
+            );
+        if (!mounted ||
+            generation != _searchGeneration ||
+            query != _activeQuery) {
+          return;
+        }
+        _klipyNextCursor = page.nextCursor;
+        newStickers = page.stickers.map(_UnifiedSticker.fromKlipy).toList();
       }
-      final existingIds = _results.map((sticker) => sticker.id).toSet();
+      final existingIds = _results.map((s) => s.id).toSet();
       setState(() {
         _results = [
           ..._results,
-          for (final sticker in page.stickers)
+          for (final sticker in newStickers)
             if (existingIds.add(sticker.id)) sticker,
         ];
-        _nextOffset = page.nextOffset;
         _loadingPage = false;
       });
     } on GiphyException catch (error) {
+      if (!mounted || generation != _searchGeneration) return;
+      setState(() => _loadingPage = false);
+      _showMessage(error.message);
+    } on KlipyException catch (error) {
       if (!mounted || generation != _searchGeneration) return;
       setState(() => _loadingPage = false);
       _showMessage(error.message);
@@ -152,20 +210,30 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     }
   }
 
-  Future<void> _downloadAndSave(GiphySticker sticker) async {
+  Future<void> _downloadAndSave(_UnifiedSticker sticker) async {
     if (_downloadingIds.contains(sticker.id)) return;
     final cancelToken = CancelToken();
     _downloadCancelTokens[sticker.id] = cancelToken;
     setState(() => _downloadingIds.add(sticker.id));
     File? downloaded;
     try {
-      downloaded = await ref
-          .read(giphyServiceProvider)
-          .downloadSticker(
-            id: sticker.id,
-            url: sticker.url,
-            cancelToken: cancelToken,
-          );
+      if (sticker.provider == GifProvider.giphy) {
+        downloaded = await ref
+            .read(giphyServiceProvider)
+            .downloadSticker(
+              id: sticker.id,
+              url: sticker.url,
+              cancelToken: cancelToken,
+            );
+      } else {
+        downloaded = await ref
+            .read(klipyServiceProvider)
+            .downloadSticker(
+              id: sticker.id,
+              url: sticker.url,
+              cancelToken: cancelToken,
+            );
+      }
       if (!mounted) return;
       final pack = await showSaveToPackSheet(
         context,
@@ -175,6 +243,10 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
       if (!mounted || pack == null) return;
       _showMessage(context.l10n.addedToPack(pack.name, pack.countLabel));
     } on GiphyException catch (error) {
+      if (mounted && !cancelToken.isCancelled) {
+        _showMessage(error.message);
+      }
+    } on KlipyException catch (error) {
       if (mounted && !cancelToken.isCancelled) {
         _showMessage(error.message);
       }
@@ -214,6 +286,19 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
     }
   }
 
+  void _onProviderChanged(GifProvider provider) {
+    ref.read(gifProviderProvider.notifier).setProvider(provider);
+    _cancelRequests();
+    setState(() {
+      _results = const [];
+      _activeQuery = null;
+      _giphyNextOffset = null;
+      _klipyNextCursor = null;
+      _error = null;
+    });
+    _searchController.clear();
+  }
+
   void _showMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -224,8 +309,20 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final activeProvider = ref.watch(gifProviderProvider);
     final giphy = ref.watch(giphyServiceProvider);
+    final klipy = ref.watch(klipyServiceProvider);
     final l10n = context.l10n;
+
+    final bool missingApiKey;
+    final String missingMessage;
+    if (activeProvider == GifProvider.giphy) {
+      missingApiKey = !giphy.hasApiKey;
+      missingMessage = l10n.missingGiphyApiKey;
+    } else {
+      missingApiKey = !klipy.hasApiKey;
+      missingMessage = l10n.missingKlipyApiKey;
+    }
 
     return SafeArea(
       bottom: false,
@@ -243,10 +340,17 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  l10n.discoverSubtitle,
+                  activeProvider == GifProvider.giphy
+                      ? l10n.discoverSubtitle
+                      : l10n.discoverSubtitleKlipy,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 12),
+                _ProviderToggle(
+                  selected: activeProvider,
+                  onChanged: _onProviderChanged,
+                ),
+                const SizedBox(height: 12),
                 TextField(
                   key: const Key('discover-search-field'),
                   controller: _searchController,
@@ -302,19 +406,93 @@ class _DiscoverScreenState extends ConsumerState<DiscoverScreen> {
                       findChildIndexCallback: (key) =>
                           findStickerGridChildIndex(
                             key,
-                            _results.map((sticker) => sticker.id),
+                            _results.map((s) => s.id),
                           ),
                     ),
                   )
                 : _DiscoverEmptyState(
                     error: _error,
-                    missingApiKey: !giphy.hasApiKey,
+                    missingApiKey: missingApiKey,
+                    missingMessage: missingMessage,
                   ),
           ),
         ],
       ),
     );
   }
+}
+
+class _ProviderToggle extends StatelessWidget {
+  const _ProviderToggle({
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final GifProvider selected;
+  final ValueChanged<GifProvider> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return SegmentedButton<GifProvider>(
+      key: const Key('discover-provider-toggle'),
+      segments: [
+        ButtonSegment(
+          value: GifProvider.giphy,
+          label: Text(context.l10n.discoverProviderGiphy),
+          icon: const Icon(Icons.auto_awesome_rounded, size: 16),
+        ),
+        ButtonSegment(
+          value: GifProvider.klipy,
+          label: Text(context.l10n.discoverProviderKlipy),
+          icon: const Icon(Icons.movie_filter_rounded, size: 16),
+        ),
+      ],
+      selected: {selected},
+      onSelectionChanged: (values) {
+        if (values.isNotEmpty) onChanged(values.first);
+      },
+      style: ButtonStyle(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        side: WidgetStateProperty.all(
+          BorderSide(color: colors.border),
+        ),
+      ),
+    );
+  }
+}
+
+class _UnifiedSticker {
+  const _UnifiedSticker({
+    required this.id,
+    required this.url,
+    required this.aspectRatio,
+    required this.animated,
+    required this.provider,
+  });
+
+  factory _UnifiedSticker.fromGiphy(GiphySticker s) => _UnifiedSticker(
+    id: 'giphy_${s.id}',
+    url: s.url,
+    aspectRatio: s.aspectRatio,
+    animated: s.animated,
+    provider: GifProvider.giphy,
+  );
+
+  factory _UnifiedSticker.fromKlipy(KlipySticker s) => _UnifiedSticker(
+    id: 'klipy_${s.id}',
+    url: s.url,
+    aspectRatio: s.aspectRatio,
+    animated: s.animated,
+    provider: GifProvider.klipy,
+  );
+
+  final String id;
+  final String url;
+  final double aspectRatio;
+  final bool animated;
+  final GifProvider provider;
 }
 
 class _StickerTile extends StatelessWidget {
@@ -325,7 +503,7 @@ class _StickerTile extends StatelessWidget {
     required this.onTap,
   });
 
-  final GiphySticker sticker;
+  final _UnifiedSticker sticker;
   final bool downloading;
   final VoidCallback onTap;
 
@@ -385,19 +563,20 @@ class _StickerTile extends StatelessWidget {
 }
 
 class _DiscoverEmptyState extends StatelessWidget {
-  const _DiscoverEmptyState({required this.error, required this.missingApiKey});
+  const _DiscoverEmptyState({
+    required this.error,
+    required this.missingApiKey,
+    required this.missingMessage,
+  });
 
   final String? error;
   final bool missingApiKey;
+  final String missingMessage;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final message =
-        error ??
-        (missingApiKey
-            ? context.l10n.missingGiphyApiKey
-            : context.l10n.discoverEmptyMessage);
+    final message = error ?? (missingApiKey ? missingMessage : context.l10n.discoverEmptyMessage);
     return Center(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(32, 16, 32, 100),

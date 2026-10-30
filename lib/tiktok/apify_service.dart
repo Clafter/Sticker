@@ -8,6 +8,7 @@ import '../config/app_environment.dart';
 import '../crashlytics/crash_reporter.dart';
 import '../l10n/l10n.dart';
 import '../network/network_client.dart';
+import '../state/settings_store.dart';
 import 'tiktok_comment_service.dart';
 import 'tiktok_import_controller.dart';
 
@@ -432,8 +433,11 @@ List<CommentSticker> parseApifyItems(List<dynamic> items) {
 }
 
 final apifyServiceProvider = Provider<ApifyService>((ref) {
+  final apiKeys = ref.watch(apiKeySettingsProvider);
+  final token = apiKeys.apifyApiToken ?? AppEnvironment.apifyApiToken;
   final importService = ref.watch(tiktokImportServiceProvider);
   return ApifyService(
+    token: token,
     videoIdResolver: (url) async => (await importService.resolveVideo(url)).id,
   );
 });

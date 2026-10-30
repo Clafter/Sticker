@@ -36,7 +36,6 @@ Future<void> main() async {
   installAppErrorHandlers();
 
   try {
-    AppEnvironment.validateRequired();
     final firebaseReady = await initializeFirebase();
     if (firebaseReady) {
       final previousFlutterOnError = FlutterError.onError;

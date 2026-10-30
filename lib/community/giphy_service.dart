@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/app_environment.dart';
 import '../l10n/l10n.dart';
 import '../network/network_client.dart';
+import '../state/settings_store.dart';
 import '../storage/storage_utility.dart';
 
 class GiphyException implements Exception {
@@ -271,5 +272,10 @@ int _asInt(dynamic value) {
 }
 
 final giphyServiceProvider = Provider<GiphyService>((ref) {
-  return GiphyService(networkClient: ref.watch(networkClientProvider));
+  final apiKeys = ref.watch(apiKeySettingsProvider);
+  final key = apiKeys.giphyApiKey ?? AppEnvironment.giphyApiKey;
+  return GiphyService(
+    networkClient: ref.watch(networkClientProvider),
+    apiKey: key,
+  );
 });

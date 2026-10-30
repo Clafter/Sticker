@@ -156,7 +156,7 @@
   },
   "discoverSubtitle": "Find stickers powered by Giphy.",
   "discoverSearchHint": "Search reactions, cats, anime…",
-  "missingGiphyApiKey": "Add a Giphy API key at build time to enable Discover.",
+  "missingGiphyApiKey": "Add a Giphy API key in Settings → API Keys to enable Discover.",
   "discoverEmptyMessage": "Search for a mood, reaction, or character.",
   "readyToDiscover": "Ready to discover",
   "noStickersYet": "No stickers yet",
@@ -493,7 +493,7 @@
     "placeholders": {"error": {"type": "String"}}
   },
   "invalidHttpsTikTokUrl": "Provide a valid HTTPS TikTok post URL.",
-  "apifyNotConfigured": "Apify is not configured. Add APIFY_API_TOKEN to the app build.",
+  "apifyNotConfigured": "Apify is not configured. Add your token in Settings → API Keys.",
   "apifyRejectedToken": "Apify rejected the API token.",
   "apifyTimedOut": "The Apify request timed out. Please try again.",
   "apifyConnectionFailed": "Could not connect to Apify.",
@@ -597,6 +597,63 @@
       }
     }
   },
+  "apiKeys": "API Keys",
+  "apiKeysDescription": "Add your own API keys to enable content search and comment scanning.",
+  "giphyApiKeyLabel": "Giphy",
+  "klipyApiKeyLabel": "Klipy",
+  "apifyApiTokenLabel": "Apify",
+  "apiKeyConfigured": "Configured ••••{lastFour}",
+  "@apiKeyConfigured": {
+    "placeholders": {
+      "lastFour": {
+        "type": "String"
+      }
+    }
+  },
+  "apiKeyNotConfigured": "Not configured",
+  "setApiKeyTitle": "Set {service} API key",
+  "@setApiKeyTitle": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "apiKeyHint": "Paste your API key",
+  "apiKeyApifyHint": "Paste your Apify API token",
+  "apiKeySave": "Save",
+  "apiKeyClear": "Clear",
+  "apiKeySaved": "{service} key saved.",
+  "@apiKeySaved": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "apiKeyCleared": "{service} key cleared.",
+  "@apiKeyCleared": {
+    "placeholders": {
+      "service": {
+        "type": "String"
+      }
+    }
+  },
+  "discoverProviderGiphy": "Giphy",
+  "discoverProviderKlipy": "Klipy",
+  "discoverSubtitleKlipy": "Find stickers powered by Klipy.",
+  "missingKlipyApiKey": "Add a Klipy API key in Settings → API Keys to enable Discover.",
+  "missingApiKeyGoToSettings": "Go to Settings",
+  "klipyRateLimitReached": "Klipy request limit was reached. Please try again later.",
+  "klipySearchRequired": "Type something to search for stickers.",
+  "klipySearchUnavailable": "Sticker search is unavailable because Klipy is not configured.",
+  "couldNotSearchKlipy": "Could not search Klipy. Please retry.",
+  "klipyUnreadableResponse": "Klipy returned an unreadable sticker response.",
+  "klipyConnectionFailed": "Could not connect to Klipy. Check your connection and retry.",
+  "klipyRejectedApiKey": "Klipy rejected the API key. Check your key in Settings.",
+  "klipyTimedOut": "The Klipy request timed out. Please retry.",
+  "klipyRequestFailed": "Klipy could not complete the request. Please retry.",
+  "klipyFeaturedUnavailable": "Featured stickers are unavailable because Klipy is not configured.",
   "legal": "Legal",
   "aboutAndLicenses": "About & licenses",
   "aboutAndLicensesDescription": "Application information, open-source notices, and third-party licenses",

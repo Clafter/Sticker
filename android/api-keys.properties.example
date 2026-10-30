@@ -1,0 +1,7 @@
+# Copy this to android/api-keys.properties (gitignored).
+# These are the compile-time API keys for local development.
+# In CI, set GIPHY_API_KEY, KLIPY_API_KEY, and APIFY_API_TOKEN as environment variables or GitHub Secrets.
+# Users can also enter keys at runtime via Settings → API Keys in the app.
+GIPHY_API_KEY=replace_with_giphy_api_key
+KLIPY_API_KEY=replace_with_klipy_api_key
+APIFY_API_TOKEN=replace_with_apify_api_token
