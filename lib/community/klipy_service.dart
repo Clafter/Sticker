@@ -96,7 +96,7 @@ class KlipyService {
       'key': _apiKey,
       'limit': pageSize,
       'media_filter': _mediaFilter,
-      ?'pos': cursor,
+      'pos': ?cursor,
     };
 
     return _fetchPage(
@@ -127,7 +127,7 @@ class KlipyService {
         'q': term,
         'limit': pageSize,
         'media_filter': _mediaFilter,
-        ?'pos': cursor,
+        'pos': ?cursor,
       },
       fallbackMessage: serviceLocalizations.couldNotSearchKlipy,
       cancelToken: cancelToken,
