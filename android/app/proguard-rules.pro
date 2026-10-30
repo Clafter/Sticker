@@ -41,3 +41,14 @@
 # Firebase Crashlytics
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
+
+# Google Play Core (deferred components / split install).
+# Flutter's embedding references these classes, but the app does not bundle
+# Play Core, so R8 reports them as missing. The deferred-components feature is
+# unused here, so tell R8 to keep the Flutter shims and ignore the absent
+# Play Core classes instead of failing the release build.
+-dontwarn com.google.android.play.core.**
+-keep class com.google.android.play.core.** { *; }
+-keep class io.flutter.embedding.engine.deferredcomponents.** { *; }
+-keep class io.flutter.embedding.android.FlutterPlayStoreSplitApplication { *; }
+
