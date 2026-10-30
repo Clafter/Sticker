@@ -53,14 +53,14 @@ Stickr utilizes **Isar** as its primary persistence layer for sticker packs, com
 * A generated 96x96 tray icon.
 * Permanent WebP files managed under app-owned document storage.
 
-Hive is reserved exclusively for lightweight application settings. 
+Sticker packs use Isar, not Hive. Hive is reserved exclusively for lightweight application settings (including API keys entered in-app). 
 
 The editor output is initially stored in a temporary cache (`stickr_temp`). Upon pack selection, ownership is transferred into the permanent pack storage to prevent duplicates.
 
 ### Network Services
 Stickr relies on multiple robust services for content discovery and processing:
-* **Giphy & Klipy:** Power trending and paginated sticker search (provider switchable in the Discover tab).
-* **Apify:** Uses `api-ninja~tiktok-comments-scraper` to process up to 50 comments per run.
+* **Giphy & Klipy:** Power trending and paginated sticker search (provider switchable in the Discover tab). Giphy powers trending Community content by default.
+* **Apify:** Uses the `api-ninja~tiktok-comments-scraper` actor via its `run-sync-get-dataset-items` endpoint to process up to 50 comments per run.
 * **TikWM:** Resolves downloadable TikTok video media.
 * **Imgflip:** Provides meme templates.
 * **Google Fonts:** Offers customized fonts for the editor.
