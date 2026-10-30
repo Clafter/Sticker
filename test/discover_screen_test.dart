@@ -69,11 +69,13 @@ void main() {
     expect(giphy.requestedOffsets, [0]);
     expect(find.byKey(const Key('discover-masonry-grid')), findsOneWidget);
     expect(
-      find.byKey(const Key('discover-sticker-transparent-1')),
+      find.byKey(const Key('discover-sticker-giphy_transparent-1')),
       findsOneWidget,
     );
 
-    await tester.tap(find.byKey(const Key('discover-sticker-transparent-1')));
+    await tester.tap(
+      find.byKey(const Key('discover-sticker-giphy_transparent-1')),
+    );
     await tester.pump();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -102,7 +104,10 @@ void main() {
       const Offset(0, -600),
     );
     await tester.pump();
-    expect(find.byKey(const Key('discover-sticker-next-page')), findsOneWidget);
+    expect(
+      find.byKey(const Key('discover-sticker-giphy_next-page')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('cancels an active search when Discover is disposed', (

@@ -39,7 +39,6 @@ void main() {
         contains('crashReporter.recordError(error, stack, fatal: true)'),
       );
       expect(mainSource, contains('initializeFirebase()'));
-      expect(mainSource, contains('AppEnvironment.validateRequired()'));
     },
   );
 

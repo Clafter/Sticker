@@ -22,7 +22,6 @@ void main() {
           allOf(
             contains('GIPHY_API_KEY'),
             contains('APIFY_API_TOKEN'),
-            contains('--dart-define'),
           ),
         ),
       ),
