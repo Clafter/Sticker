@@ -16,11 +16,17 @@ The easiest way to install Stickr and receive automatic updates is via **[Obtain
    ```
    stickr-.*\.apk
    ```
-5. Tap **Add** — Obtainium fetches the latest release and keeps the app up to date automatically.
+5. Tap **Add** — Obtainium fetches the latest release, automatically picks the APK for your device's CPU architecture, and keeps the app up to date.
 
-> **Note:** The APK is ~294 MB (a universal build including all CPU architectures). On a metered connection it may take a minute to download.
+Each release ships three APKs (~80–100 MB each):
 
-Alternatively, download the latest APK directly from the [Releases page](https://github.com/Clafter/Sticker/releases/latest).
+| APK suffix | Architecture | Devices |
+|---|---|---|
+| `-arm64-v8a` | 64-bit ARM | Most Android phones since 2016 |
+| `-armeabi-v7a` | 32-bit ARM | Older Android phones |
+| `-x86_64` | 64-bit x86 | Emulators / x86 tablets |
+
+Obtainium selects the right one automatically based on your device's ABI. If you prefer to install manually, download the matching APK from the [Releases page](https://github.com/Clafter/Sticker/releases/latest).
 
 ---
 

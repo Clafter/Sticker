@@ -99,9 +99,9 @@ jobs:
           GSJ_EOF
           fi
 
-      - name: Build release APK
+      - name: Build release APKs (per-ABI)
         run: |
-          flutter build apk --release \
+          flutter build apk --release --split-per-abi \
             --dart-define-from-file=android/release-defines.json
 
       - name: Determine release tag
@@ -113,10 +113,13 @@ jobs:
             echo "tag=dev-$(date +%Y%m%d-%H%M%S)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Rename APK
+      - name: Rename APKs
         run: |
-          cp build/app/outputs/flutter-apk/app-release.apk \
-             build/app/outputs/flutter-apk/stickr-${{ steps.tag.outputs.tag }}.apk
+          TAG="${{ steps.tag.outputs.tag }}"
+          DIR=build/app/outputs/flutter-apk
+          cp "$DIR/app-armeabi-v7a-release.apk" "$DIR/stickr-${TAG}-armeabi-v7a.apk"
+          cp "$DIR/app-arm64-v8a-release.apk"   "$DIR/stickr-${TAG}-arm64-v8a.apk"
+          cp "$DIR/app-x86_64-release.apk"      "$DIR/stickr-${TAG}-x86_64.apk"
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -132,11 +135,22 @@ jobs:
             ```
             Set the **APK file name filter** to `stickr-.*\.apk`.
 
-            > **Note:** The APK is a universal build (~290 MB) that runs on all Android CPU architectures. On a metered connection, allow a minute to download.
+            Obtainium automatically selects the APK that matches your device's CPU architecture:
+
+            | APK | Architecture | Devices |
+            |-----|-------------|---------|
+            | `stickr-*-arm64-v8a.apk` | 64-bit ARM | Most phones since 2016 |
+            | `stickr-*-armeabi-v7a.apk` | 32-bit ARM | Older Android phones |
+            | `stickr-*-x86_64.apk` | 64-bit x86 | Emulators / x86 tablets |
+
+            Each APK is ~80–100 MB (down from ~290 MB for the universal build).
 
             ## What's new
 
             See [commits](https://github.com/Clafter/Sticker/commits/${{ steps.tag.outputs.tag }}) for changes since the last release.
-          files: build/app/outputs/flutter-apk/stickr-${{ steps.tag.outputs.tag }}.apk
+          files: |
+            build/app/outputs/flutter-apk/stickr-${{ steps.tag.outputs.tag }}-armeabi-v7a.apk
+            build/app/outputs/flutter-apk/stickr-${{ steps.tag.outputs.tag }}-arm64-v8a.apk
+            build/app/outputs/flutter-apk/stickr-${{ steps.tag.outputs.tag }}-x86_64.apk
           draft: false
           prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
