@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:stickr/editor/background_removal_service.dart';
 import 'package:stickr/editor/editor_models.dart';
 import 'package:stickr/editor/image_sticker_service.dart';
 import 'package:stickr/tiktok/comment_sticker_formatter.dart';

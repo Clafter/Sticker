@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
