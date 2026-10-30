@@ -326,7 +326,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missingGiphyApiKey =>
-      'Add a Giphy API key at build time to enable Discover.';
+      'Add a Giphy API key in Settings → API Keys to enable Discover.';
 
   @override
   String get discoverEmptyMessage =>
@@ -975,7 +975,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apifyNotConfigured =>
-      'Apify is not configured. Add APIFY_API_TOKEN to the app build.';
+      'Apify is not configured. Add your token in Settings → API Keys.';
 
   @override
   String get apifyRejectedToken => 'Apify rejected the API token.';
@@ -1270,6 +1270,110 @@ class AppLocalizationsEn extends AppLocalizations {
   String invalidStickerDimensions(String fileName, int width, int height) {
     return '$fileName must be exactly $width by $height pixels.';
   }
+
+  @override
+  String get apiKeys => 'API Keys';
+
+  @override
+  String get apiKeysDescription =>
+      'Add your own API keys to enable content search and comment scanning.';
+
+  @override
+  String get giphyApiKeyLabel => 'Giphy';
+
+  @override
+  String get klipyApiKeyLabel => 'Klipy';
+
+  @override
+  String get apifyApiTokenLabel => 'Apify';
+
+  @override
+  String apiKeyConfigured(String lastFour) {
+    return 'Configured ••••$lastFour';
+  }
+
+  @override
+  String get apiKeyNotConfigured => 'Not configured';
+
+  @override
+  String setApiKeyTitle(String service) {
+    return 'Set $service API key';
+  }
+
+  @override
+  String get apiKeyHint => 'Paste your API key';
+
+  @override
+  String get apiKeyApifyHint => 'Paste your Apify API token';
+
+  @override
+  String get apiKeySave => 'Save';
+
+  @override
+  String get apiKeyClear => 'Clear';
+
+  @override
+  String apiKeySaved(String service) {
+    return '$service key saved.';
+  }
+
+  @override
+  String apiKeyCleared(String service) {
+    return '$service key cleared.';
+  }
+
+  @override
+  String get discoverProviderGiphy => 'Giphy';
+
+  @override
+  String get discoverProviderKlipy => 'Klipy';
+
+  @override
+  String get discoverSubtitleKlipy => 'Find stickers powered by Klipy.';
+
+  @override
+  String get missingKlipyApiKey =>
+      'Add a Klipy API key in Settings → API Keys to enable Discover.';
+
+  @override
+  String get missingApiKeyGoToSettings => 'Go to Settings';
+
+  @override
+  String get klipyRateLimitReached =>
+      'Klipy request limit was reached. Please try again later.';
+
+  @override
+  String get klipySearchRequired => 'Type something to search for stickers.';
+
+  @override
+  String get klipySearchUnavailable =>
+      'Sticker search is unavailable because Klipy is not configured.';
+
+  @override
+  String get couldNotSearchKlipy => 'Could not search Klipy. Please retry.';
+
+  @override
+  String get klipyUnreadableResponse =>
+      'Klipy returned an unreadable sticker response.';
+
+  @override
+  String get klipyConnectionFailed =>
+      'Could not connect to Klipy. Check your connection and retry.';
+
+  @override
+  String get klipyRejectedApiKey =>
+      'Klipy rejected the API key. Check your key in Settings.';
+
+  @override
+  String get klipyTimedOut => 'The Klipy request timed out. Please retry.';
+
+  @override
+  String get klipyRequestFailed =>
+      'Klipy could not complete the request. Please retry.';
+
+  @override
+  String get klipyFeaturedUnavailable =>
+      'Featured stickers are unavailable because Klipy is not configured.';
 
   @override
   String get legal => 'Legal';

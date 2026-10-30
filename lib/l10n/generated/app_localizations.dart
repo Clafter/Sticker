@@ -655,7 +655,7 @@ abstract class AppLocalizations {
   /// No description provided for @missingGiphyApiKey.
   ///
   /// In en, this message translates to:
-  /// **'Add a Giphy API key at build time to enable Discover.'**
+  /// **'Add a Giphy API key in Settings → API Keys to enable Discover.'**
   String get missingGiphyApiKey;
 
   /// No description provided for @discoverEmptyMessage.
@@ -1711,7 +1711,7 @@ abstract class AppLocalizations {
   /// No description provided for @apifyNotConfigured.
   ///
   /// In en, this message translates to:
-  /// **'Apify is not configured. Add APIFY_API_TOKEN to the app build.'**
+  /// **'Apify is not configured. Add your token in Settings → API Keys.'**
   String get apifyNotConfigured;
 
   /// No description provided for @apifyRejectedToken.
@@ -2181,6 +2181,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{fileName} must be exactly {width} by {height} pixels.'**
   String invalidStickerDimensions(String fileName, int width, int height);
+
+  /// No description provided for @apiKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'API Keys'**
+  String get apiKeys;
+
+  /// No description provided for @apiKeysDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your own API keys to enable content search and comment scanning.'**
+  String get apiKeysDescription;
+
+  /// No description provided for @giphyApiKeyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Giphy'**
+  String get giphyApiKeyLabel;
+
+  /// No description provided for @klipyApiKeyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Klipy'**
+  String get klipyApiKeyLabel;
+
+  /// No description provided for @apifyApiTokenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Apify'**
+  String get apifyApiTokenLabel;
+
+  /// No description provided for @apiKeyConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Configured ••••{lastFour}'**
+  String apiKeyConfigured(String lastFour);
+
+  /// No description provided for @apiKeyNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Not configured'**
+  String get apiKeyNotConfigured;
+
+  /// No description provided for @setApiKeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {service} API key'**
+  String setApiKeyTitle(String service);
+
+  /// No description provided for @apiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste your API key'**
+  String get apiKeyHint;
+
+  /// No description provided for @apiKeyApifyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste your Apify API token'**
+  String get apiKeyApifyHint;
+
+  /// No description provided for @apiKeySave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get apiKeySave;
+
+  /// No description provided for @apiKeyClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get apiKeyClear;
+
+  /// No description provided for @apiKeySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} key saved.'**
+  String apiKeySaved(String service);
+
+  /// No description provided for @apiKeyCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'{service} key cleared.'**
+  String apiKeyCleared(String service);
+
+  /// No description provided for @discoverProviderGiphy.
+  ///
+  /// In en, this message translates to:
+  /// **'Giphy'**
+  String get discoverProviderGiphy;
+
+  /// No description provided for @discoverProviderKlipy.
+  ///
+  /// In en, this message translates to:
+  /// **'Klipy'**
+  String get discoverProviderKlipy;
+
+  /// No description provided for @discoverSubtitleKlipy.
+  ///
+  /// In en, this message translates to:
+  /// **'Find stickers powered by Klipy.'**
+  String get discoverSubtitleKlipy;
+
+  /// No description provided for @missingKlipyApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Klipy API key in Settings → API Keys to enable Discover.'**
+  String get missingKlipyApiKey;
+
+  /// No description provided for @missingApiKeyGoToSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Settings'**
+  String get missingApiKeyGoToSettings;
+
+  /// No description provided for @klipyRateLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Klipy request limit was reached. Please try again later.'**
+  String get klipyRateLimitReached;
+
+  /// No description provided for @klipySearchRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Type something to search for stickers.'**
+  String get klipySearchRequired;
+
+  /// No description provided for @klipySearchUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sticker search is unavailable because Klipy is not configured.'**
+  String get klipySearchUnavailable;
+
+  /// No description provided for @couldNotSearchKlipy.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not search Klipy. Please retry.'**
+  String get couldNotSearchKlipy;
+
+  /// No description provided for @klipyUnreadableResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Klipy returned an unreadable sticker response.'**
+  String get klipyUnreadableResponse;
+
+  /// No description provided for @klipyConnectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect to Klipy. Check your connection and retry.'**
+  String get klipyConnectionFailed;
+
+  /// No description provided for @klipyRejectedApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Klipy rejected the API key. Check your key in Settings.'**
+  String get klipyRejectedApiKey;
+
+  /// No description provided for @klipyTimedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'The Klipy request timed out. Please retry.'**
+  String get klipyTimedOut;
+
+  /// No description provided for @klipyRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Klipy could not complete the request. Please retry.'**
+  String get klipyRequestFailed;
+
+  /// No description provided for @klipyFeaturedUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured stickers are unavailable because Klipy is not configured.'**
+  String get klipyFeaturedUnavailable;
 
   /// No description provided for @legal.
   ///
