@@ -55,6 +55,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // The app opens on the Scanner tab; switch to the Library tab to see packs.
+    await tester.tap(find.byKey(const Key('nav-library')));
+    await tester.pumpAndSettle();
+
     expect(find.text('Monday moods'), findsOneWidget);
     expect(find.textContaining('Ready'), findsOneWidget);
 
@@ -201,6 +205,10 @@ void main() {
         ),
       );
       await tester.pump();
+
+      // The app opens on the Scanner tab; switch to the Library tab.
+      await tester.tap(find.byKey(const Key('nav-library')));
+      await tester.pumpAndSettle();
       expect(find.text('No packs yet'), findsOneWidget);
 
       await repo.createPack(name: 'Fresh pack', author: 'Ian');

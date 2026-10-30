@@ -60,6 +60,8 @@ void main() {
       500,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.byKey(const Key('about-licenses')));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('about-licenses')));
     await tester.pumpAndSettle();

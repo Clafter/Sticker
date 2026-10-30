@@ -54,6 +54,9 @@ void main() {
     gate.complete();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
+    // Let the prefetch pipeline stream drain into the grid.
+    await tester.pump();
+    await tester.pump();
 
     expect(find.text('Comment stickers'), findsOneWidget);
     expect(find.byKey(const Key('comment-sticker-grid')), findsOneWidget);

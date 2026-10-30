@@ -60,15 +60,19 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.text('Scanning comments for stickers...'), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsWidgets);
-    expect(find.byType(CommentScanLoadingDialog), findsOneWidget);
+    // The Scanner shows an inline loading indicator (not a modal dialog) while
+    // the Apify request is in flight.
+    expect(find.byKey(const Key('scanner-loading-lottie')), findsOneWidget);
+    expect(find.byKey(const Key('scanner-clipboard-notice')), findsOneWidget);
 
     gate.complete();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
+    // Let the prefetch pipeline stream drain into the grid.
+    await tester.pump();
+    await tester.pump();
 
-    expect(find.text('Scanning comments for stickers...'), findsNothing);
+    expect(find.byKey(const Key('scanner-loading-lottie')), findsNothing);
     expect(find.text('Comment stickers'), findsOneWidget);
     expect(find.byKey(const Key('comment-sticker-grid')), findsOneWidget);
     expect(find.byType(GridView), findsOneWidget);
@@ -85,7 +89,12 @@ void main() {
     );
     expect(thumb.memCacheWidth, 256);
     expect(thumb.memCacheHeight, 256);
-    expect(find.byKey(const Key('comment-sticker-progress')), findsNothing);
+    // Prefetch is enabled for the clipboard flow, so the progress label is
+    // present and reflects both stickers being ready.
+    expect(
+      tester.widget<Text>(find.byKey(const Key('comment-sticker-progress'))).data,
+      'Preparing stickers (2/2)',
+    );
     expect(find.byType(InkWell), findsWidgets);
     expect(apify.lastUrl, contains('7393468652906925317'));
   });
@@ -205,6 +214,7 @@ void main() {
           theme: AppTheme.light,
           home: const Scaffold(
             body: CommentStickerSheet(
+              prefetchDownloads: false,
               stickers: [
                 CommentSticker(
                   id: '1_0',
@@ -307,7 +317,10 @@ void main() {
 
     expect(find.byKey(const Key('comment-sticker-grid')), findsNothing);
     expect(find.byType(CircularProgressIndicator), findsWidgets);
-    expect(find.text('0 / 2'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('comment-sticker-progress'))).data,
+      'Preparing stickers (0/2)',
+    );
 
     controller.add(
       const CommentStickerProgress(downloaded: 1, total: 2, sticker: first),
@@ -317,7 +330,10 @@ void main() {
     expect(find.byKey(const Key('comment-sticker-grid')), findsOneWidget);
     expect(find.byKey(const Key('comment-sticker-1_0')), findsOneWidget);
     expect(find.byKey(const Key('comment-sticker-2_0')), findsNothing);
-    expect(find.text('1 / 2'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('comment-sticker-progress'))).data,
+      'Preparing stickers (1/2)',
+    );
 
     controller.add(
       const CommentStickerProgress(downloaded: 2, total: 2, sticker: second),
@@ -327,7 +343,10 @@ void main() {
     expect(find.byKey(const Key('comment-sticker-1_0')), findsOneWidget);
     expect(find.byKey(const Key('comment-sticker-2_0')), findsOneWidget);
     expect(find.byType(CachedNetworkImage), findsNWidgets(2));
-    expect(find.text('2 / 2'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('comment-sticker-progress'))).data,
+      'Preparing stickers (2/2)',
+    );
   });
 }
 

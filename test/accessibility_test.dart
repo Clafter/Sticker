@@ -180,6 +180,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    // The app opens on the Scanner tab; switch to the Library tab to see packs.
+    await tester.tap(find.byKey(const Key('nav-library')));
+    await tester.pumpAndSettle();
+
     expect(tester.takeException(), isNull);
     expect(find.text('Monday moods'), findsOneWidget);
     expect(find.bySemanticsLabel('Monday moods'), findsWidgets);
